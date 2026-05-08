@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE / editor
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs and reports
+testLog/
+testReport/
+
+# Excel temporary files
+~$*.xlsx
+~$*.xls
+
+# Local files
+*.log

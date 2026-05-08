@@ -1,0 +1,19 @@
+# ============================================================
+# 预发环境配置 (staging)
+# 覆盖 settings.yaml 中的默认值
+# ============================================================
+
+env: "staging"
+
+api:
+  base_url: "https://staging.example.com"
+  timeout: 60
+  verify_ssl: true
+
+auth:
+  type: "basic"
+  # 预发环境凭证，建议通过环境变量注入
+  authorization: ""
+
+logging:
+  level: "INFO"

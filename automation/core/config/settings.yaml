@@ -1,0 +1,53 @@
+# ============================================================
+# automation 框架 - 全局默认配置
+# 此文件定义所有配置的默认值，环境配置文件可覆盖
+# ============================================================
+
+project:
+  name: "pythonProject-automation"
+  version: "1.0.0"
+
+# 默认环境（可通过 --env 参数覆盖）
+env: "test"
+
+# API 基础配置
+api:
+  base_url: "https://localhost"
+  timeout: 30
+  verify_ssl: false
+  retry_count: 0
+
+# 请求头默认配置
+headers:
+  content_type: "application/json"
+  x_requested_by: "XMLHttpRequest"
+  x_requested_with: "XMLHttpRequest"
+
+# 认证配置（占位，后续阶段实现 token 自动注入）
+auth:
+  type: "basic"  # basic / token / session
+  # credential 不应写在此文件，应放在 env yaml 或 .env 中
+
+# Allure 报告
+allure:
+  results_dir: "reports/allure-results"
+  report_dir: "reports/allure-report"
+  language: "zh-CN"
+
+# 日志配置
+logging:
+  level: "INFO"
+  file_level: "DEBUG"
+  log_dir: "logs"
+  max_files: 7
+  format: "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+
+# 测试数据
+test_data:
+  dir: "testdata"
+  default_format: "xlsx"
+
+# pytest 运行相关
+runner:
+  default_markers: []
+  parallel_workers: 1  # 默认单线程

@@ -20,10 +20,14 @@ env/
 # Logs and reports
 testLog/
 testReport/
+automation/reports/
 
 # Excel temporary files
 ~$*.xlsx
 ~$*.xls
+
+# Environment files (secrets)
+.env
 
 # Local files
 *.log

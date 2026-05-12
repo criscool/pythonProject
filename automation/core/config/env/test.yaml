@@ -11,10 +11,11 @@ api:
   verify_ssl: false
 
 auth:
-  type: "basic"
-  # authorization 值：Base64("session-id:session")
-  # 敏感信息建议通过环境变量 AUTOMATION_AUTH_TOKEN 注入
-  authorization: "Basic NmE3YTc5Y2ItNjZmYy00ZjllLWE0ZTktYWNhZmVmMGY2Yjk0OnNlc3Npb24="
+  type: "login"
+  # 不保存静态 authorization，登录态由 AuthSession 动态管理
+  # 登录凭证（用于动态登录获取 session）
+  username: "superadmin"
+  password: "Admin@123"
 
 logging:
   level: "DEBUG"

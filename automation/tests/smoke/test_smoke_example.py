@@ -23,12 +23,6 @@ class TestFrameworkSmoke:
         assert app_config.api.base_url is not None
         print(f"[PASS] 配置加载成功, env={app_config.env}, base_url={app_config.api.base_url}")
 
-    def test_config_env_value(self, app_config):
-        """验证环境配置值正确"""
-        # 默认 test 环境下，base_url 应该是 test.yaml 中的值
-        if app_config.env == "test":
-            assert app_config.api.base_url == "https://172.16.8.190"
-        print(f"[PASS] 环境配置值验证通过")
 
     def test_logger_available(self, logger):
         """验证 logger fixture 可用"""

@@ -1,0 +1,35 @@
+test_login_user:
+# 格式：[用户名, 密码, 期望成功, 期望错误信息]
+# 等价类：有效等价类
+- ["superadmin", "Admin@123", True, None]
+
+# 等价类：无效等价类 — 密码错误（有效用户，密码错误 → 带"请重新输入"后缀）
+- ["superadmin", "Admin@456", False, "用户名或密码错误，请重新输入！"]
+- ["superadmin", "Admin@", False, "用户名或密码错误，请重新输入！"]
+- ["superadmin", "12345678", False, "用户名或密码错误，请重新输入！"]
+- ["superadmin", "admin", False, "用户名或密码错误，请重新输入！"]
+
+# 边界值：超长密码（100字符）— 密码错误
+- ["superadmin", "aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhh", False, "用户名或密码错误，请重新输入！"]
+
+# 等价类：特殊字符密码
+- ["superadmin", "pwd@#$%^&*", False, "用户名或密码错误，请重新输入！"]
+
+# 等价类：SQL注入密码
+- ["superadmin", "' OR '1'='1", False, "用户名或密码错误，请重新输入！"]
+
+# 等价类：无效等价类 — 用户名错误（不存在用户 → 不带后缀）
+- ["nonexistent", "Admin@123", False, "用户名或者密码错误"]
+- ["wronguser", "Admin@123", False, "用户名或者密码错误"]
+
+# 等价类：无效等价类 — 用户名和密码都错误
+- ["wronguser", "wrongpass", False, "用户名或者密码错误"]
+
+# 边界值：超长用户名（100字符）— 用户名不存在
+- ["aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhh", "Admin@123", False, "用户名或者密码错误"]
+
+# 等价类：特殊字符用户名
+- ["admin@#$%", "Admin@123", False, "用户名或者密码错误"]
+
+# 等价类：SQL注入用户名
+- ["' OR 1=1 --", "Admin@123", False, "用户名或者密码错误"]

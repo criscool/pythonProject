@@ -17,7 +17,17 @@ from pathlib import Path
 import pytest
 
 from automation.core.config.loader import config as app_cfg
-from automation.core.utils.path import get_automation_root, get_logs_dir, ensure_dir
+from automation.core.utils.path import get_automation_root, get_logs_dir, get_testdata_dir, ensure_dir
+from automation.api.modules.login_api import login as _login
+from automation.core.auth.session import AuthSession
+
+
+BASE_PATH = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+# ==================== 注册外部 fixture 模块 ====================
+pytest_plugins = [
+    "automation.core.fixtures.api_fixtures",
+]
 
 
 # ==================== pytest 钩子 ====================
@@ -70,7 +80,7 @@ def pytest_configure(config):
 
 
 def pytest_sessionfinish(session, exitstatus):
-    """测试结束后清理"""
+    """测试结束后清理 & 写入 Allure 环境信息"""
     # 清理旧日志，只保留最新 N 个
     max_files = app_cfg.get("logging.max_files", 7)
     log_dir = get_logs_dir()
@@ -81,6 +91,18 @@ def pytest_sessionfinish(session, exitstatus):
     )
     for old_file in log_files[max_files:]:
         old_file.unlink(missing_ok=True)
+
+    # 写入 Allure 环境信息
+    allure_results_dir = get_automation_root() / app_cfg.get("allure.results_dir", "reports/allure-results")
+    if allure_results_dir.exists():
+        import platform
+        env_file = allure_results_dir / "environment.properties"
+        with open(env_file, "w", encoding="utf-8") as f:
+            f.write(f"Python.Version={platform.python_version()}\n")
+            f.write(f"Platform={platform.platform()}\n")
+            f.write(f"Project=pythonProject-automation\n")
+            f.write(f"Environment={app_cfg.env}\n")
+            f.write(f"Test.Framework=pytest\n")
 
 
 # ==================== 全局 Fixtures ====================
@@ -119,6 +141,43 @@ def logger(request):
         test_logger.addHandler(handler)
 
     return test_logger
+
+
+# ==================== YAML 测试数据加载 ====================
+
+
+
+def load_test_data(test_key: str, file_path: str = None) -> list:
+    """
+    从 YAML 测试数据文件中加载指定 key 的测试数据，供 @pytest.mark.parametrize 使用。
+
+    :param test_key: YAML 中的顶层 key（如 "test_login_user"）
+    :param file_path: YAML 文件路径，默认使用 testdata/api_test_data.yml
+    :return: 可用于 parametrize 的列表，元素为 (args...) 或 [args...]
+
+    使用方式：
+        from automation.conftest import load_test_data
+
+        @pytest.mark.parametrize("username,password,expected_result,expected_message",
+            load_test_data("test_login_user"))
+        def test_login(username, password, expected_result, expected_message):
+            ...
+    """
+    import yaml
+
+    if file_path is None:
+        file_path = str(get_testdata_dir() / "api_test_data.yml")
+
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    cases = data.get(test_key, [])
+    if not cases:
+        raise ValueError(f"YAML 文件中未找到测试数据 key: {test_key}")
+    print(cases, "读取cases")
+    return cases
+
+
 
 
 # ==================== 预留扩展点 ====================

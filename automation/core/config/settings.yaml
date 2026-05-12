@@ -23,16 +23,23 @@ headers:
   x_requested_by: "XMLHttpRequest"
   x_requested_with: "XMLHttpRequest"
 
-# 认证配置（占位，后续阶段实现 token 自动注入）
+# 认证配置
 auth:
-  type: "basic"  # basic / token / session
-  # credential 不应写在此文件，应放在 env yaml 或 .env 中
+  type: "login"  # basic / token / session / login
+  # 登录接口路径（各环境一致，只在路径特殊时覆盖）
+  login_path: "/api/system/sessions"
 
 # Allure 报告
 allure:
   results_dir: "reports/allure-results"
   report_dir: "reports/allure-report"
   language: "zh-CN"
+  # Allure 命令路径由 PathDetector 自动探测（core/utils/detector.py）
+  # 若需要手动指定，可设置 ALLURE_HOME 环境变量
+
+# Java 环境（由 PathDetector 自动探测，也可设置 JAVA_HOME 环境变量）
+# java:
+#   home: ""
 
 # 日志配置
 logging:

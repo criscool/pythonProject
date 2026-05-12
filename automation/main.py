@@ -34,6 +34,7 @@ automation 新框架 - 统一调度入口
 import argparse
 import sys
 import os
+import subprocess
 from pathlib import Path
 
 # 确保 automation 的父目录在 sys.path 中
@@ -160,6 +161,81 @@ def run(args) -> int:
     return exit_code
 
 
+def generate_allure_report():
+    """生成 Allure HTML 报告"""
+    try:
+        from automation.core.config.loader import config as app_cfg
+        from automation.core.utils.path import get_automation_root, ensure_dir
+        from automation.core.utils.detector import PathDetector, PathDetectionError
+    except ImportError:
+        print("[WARN] 无法加载 config，跳过报告生成")
+        return False
+
+    detector = PathDetector()
+
+    try:
+        allure_home = detector.find_allure_path()
+        allure_cmd = str(allure_home)
+    except PathDetectionError as e:
+        print(f"[FAIL] {e}")
+        return False
+
+    try:
+        java_home = detector.find_java_home()
+        os.environ["JAVA_HOME"] = str(java_home)
+    except PathDetectionError:
+        pass
+
+    automation_root = get_automation_root()
+    results_dir = str(automation_root / app_cfg.get("allure.results_dir", "reports/allure-results"))
+    report_dir = str(automation_root / app_cfg.get("allure.report_dir", "reports/allure-report"))
+
+    ensure_dir(Path(report_dir).parent)
+
+    print("\n" + "=" * 60)
+    print("[REPORT] 生成 Allure 报告...")
+    print("=" * 60)
+
+    cmd = [allure_cmd, "generate", results_dir, "-o", report_dir, "--clean"]
+
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        if result.returncode == 0:
+            print(f"[OK] 报告已生成: {report_dir}")
+            _set_report_language(report_dir)
+            return True
+        else:
+            print(f"[FAIL] 生成报告失败: {result.stderr}")
+            return False
+    except FileNotFoundError:
+        print(f"[FAIL] 找不到 Allure 命令: {allure_cmd}")
+        return False
+
+
+def _set_report_language(report_dir):
+    """将 Allure 报告设置为中文"""
+    index_html = os.path.join(report_dir, "index.html")
+    if not os.path.exists(index_html):
+        return
+
+    with open(index_html, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    content = content.replace('lang="en"', 'lang="zh"')
+
+    inject_script = """<script>
+    Object.defineProperty(navigator, 'language', {get: function() {return 'zh-CN';}});
+    Object.defineProperty(navigator, 'languages', {get: function() {return ['zh-CN', 'zh'];}});
+    </script>
+    <script src="app.js"></script>"""
+    content = content.replace('<script src="app.js"></script>', inject_script)
+
+    with open(index_html, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    print("[OK] 报告语言已设置为中文")
+
+
 def main():
     """主入口"""
     args = parse_args()
@@ -169,9 +245,9 @@ def main():
 
     exit_code = run(args)
 
-    # 可选：生成 Allure 报告（后续阶段完善）
+    # 可选：生成 Allure 报告
     if args.report:
-        print("\n[INFO] Allure 报告生成功能将在后续阶段实现")
+        generate_allure_report()
 
     sys.exit(exit_code)
 

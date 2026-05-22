@@ -1,0 +1,21 @@
+# ============================================================
+# 测试环境配置 (test)
+# 覆盖 settings.yaml 中的默认值
+# ============================================================
+
+env: "test"
+
+api:
+  base_url: "https://172.16.8.190"
+  timeout: 30
+  verify_ssl: false
+
+auth:
+  type: "login"
+  # 不保存静态 authorization，登录态由 AuthSession 动态管理
+  # 登录凭证（用于动态登录获取 session）
+  username: "superadmin"
+  password: "Admin@123"
+
+logging:
+  level: "DEBUG"

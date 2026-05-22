@@ -1,0 +1,60 @@
+# ============================================================
+# automation 框架 - 全局默认配置
+# 此文件定义所有配置的默认值，环境配置文件可覆盖
+# ============================================================
+
+project:
+  name: "pythonProject-automation"
+  version: "1.0.0"
+
+# 默认环境（可通过 --env 参数覆盖）
+env: "test"
+
+# API 基础配置
+api:
+  base_url: "https://localhost"
+  timeout: 30
+  verify_ssl: false
+  retry_count: 0
+
+# 请求头默认配置
+headers:
+  content_type: "application/json"
+  x_requested_by: "XMLHttpRequest"
+  x_requested_with: "XMLHttpRequest"
+
+# 认证配置
+auth:
+  type: "login"  # basic / token / session / login
+  # 登录接口路径（各环境一致，只在路径特殊时覆盖）
+  login_path: "/api/system/sessions"
+
+# Allure 报告
+allure:
+  results_dir: "reports/allure-results"
+  report_dir: "reports/allure-report"
+  language: "zh-CN"
+  # Allure 命令路径由 PathDetector 自动探测（core/utils/detector.py）
+  # 若需要手动指定，可设置 ALLURE_HOME 环境变量
+
+# Java 环境（由 PathDetector 自动探测，也可设置 JAVA_HOME 环境变量）
+# java:
+#   home: ""
+
+# 日志配置
+logging:
+  level: "INFO"
+  file_level: "DEBUG"
+  log_dir: "logs"
+  max_files: 7
+  format: "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+
+# 测试数据
+test_data:
+  dir: "testdata"
+  default_format: "xlsx"
+
+# pytest 运行相关
+runner:
+  default_markers: []
+  parallel_workers: 1  # 默认单线程
